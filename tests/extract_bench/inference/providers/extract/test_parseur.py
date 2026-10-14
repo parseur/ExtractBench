@@ -9,6 +9,9 @@ from typing import Any
 
 import pytest
 import requests
+
+pytest.importorskip("pypdf", reason="dev and runners extras required; run: uv sync --extra dev --extra runners")
+
 from pypdf import PdfWriter
 
 from extract_bench.inference.pipelines import get_pipeline
