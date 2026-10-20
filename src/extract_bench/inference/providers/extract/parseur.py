@@ -110,7 +110,12 @@ def _simplify(node: Any) -> dict[str, Any]:
         if union_key == "allOf" and non_null:
             merged = dict(base)
             for option in non_null:
-                merged.update(_simplify(option))
+                branch = _simplify(option)
+                # Each branch adds its own properties: merge them, do not replace.
+                properties = {**merged.get("properties", {}), **branch.get("properties", {})}
+                merged.update(branch)
+                if properties:
+                    merged["properties"] = properties
             return _simplify(merged)
         # Several distinct shapes: capture as text.
         fallback = {k: v for k, v in base.items() if k not in ("enum", "format", "properties", "items")}

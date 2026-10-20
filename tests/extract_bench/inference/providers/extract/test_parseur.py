@@ -183,6 +183,23 @@ def test_shapes_parseur_cannot_hold_are_dropped(schema: dict[str, Any], expected
     assert convert_json_schema(schema)["dropped"] == expected_dropped
 
 
+def test_all_of_branches_merge_their_properties() -> None:
+    schema = {
+        "type": "object",
+        "properties": {
+            "party": {
+                "allOf": [
+                    {"type": "object", "properties": {"name": {"type": "string"}}},
+                    {"type": "object", "properties": {"amount": {"type": "number"}}},
+                ]
+            }
+        },
+    }
+    fields = _by_name(convert_json_schema(schema)["parser_object_set"])
+    assert fields["party.name"]["format"] == "ONELINE"
+    assert fields["party.amount"]["format"] == "NUMBER"
+
+
 def test_recursive_schemas_convert() -> None:
     """A self-referential ``$ref``, through an array or an object, stops instead of recursing without end."""
     node = {
